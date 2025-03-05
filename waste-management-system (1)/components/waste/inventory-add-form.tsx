@@ -9,26 +9,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase"
 
-export function WasteForm() {
+export function Addinventory() {
   const { toast } = useToast()
   const [date, setDate] = useState<Date>()
   const [formData, setFormData] = useState({
-    product: "",
+    product_name: "",
     category: "",
     quantity: "",
-    unit: "",
-    cost: "",
-    reason: "",
-    notes: ""
+    total_cost: "",
+    expiry_date: ""
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value })
   }
 
@@ -39,7 +36,7 @@ export function WasteForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
-    if (!formData.product || !formData.category || !formData.quantity || !formData.unit || !formData.cost || !date || !formData.reason) {
+    if (!formData.product_name || !formData.category || !formData.quantity || !formData.total_cost || !date) {
       toast({
         title: "Error",
         description: "Please fill all required fields.",
@@ -50,17 +47,17 @@ export function WasteForm() {
   
     const wasteEntry = {
       id: crypto.randomUUID(),
-      product: formData.product,
+      product_name: formData.product_name,
       category: formData.category,
       quantity: parseFloat(formData.quantity),  // Ensure number format
-      date_added: date?.toISOString().split("T")[0], // YYYY-MM-DD format
-      reason: formData.reason,
-      cost: parseFloat(formData.cost).toFixed(2), // Ensure decimal format
+      date_added: new Date().toISOString().split("T")[0], // Current date
+      total_cost: parseFloat(formData.total_cost).toFixed(2), // Ensure decimal format
+      expiry_date: date?.toISOString().split("T")[0] // YYYY-MM-DD format
     };
   
     console.log("Submitting waste entry:", wasteEntry);
   
-    const { error } = await supabase.from("waste_entries").insert([wasteEntry]);
+    const { error } = await supabase.from("inventory").insert([wasteEntry]);
   
     if (error) {
       console.error("Insert error:", error.message);
@@ -72,38 +69,36 @@ export function WasteForm() {
     } else {
       toast({
         title: "Success",
-        description: "Waste entry added successfully.",
+        description: "Inventory entry added successfully.",
       });
   
       // Reset form after successful submission
       setFormData({
-        product: "",
+        product_name: "",
         category: "",
         quantity: "",
-        unit: "",
-        cost: "",
-        reason: "",
-        notes: "",
+        total_cost: "",
+        expiry_date: ""
       });
       setDate(undefined);
     }
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto"> {/* Adjust the max-width as needed */}
+    <div className="w-full"> 
       <Card>
         <CardHeader>
-          <CardTitle>Add Waste Entry</CardTitle>
+          <CardTitle>Add Inventory Entry</CardTitle>
           <CardDescription>
-            Record a new waste item with details about quantity, category, and expiration.
+            Record a new inventory item with details about quantity, category, and expiration.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="product">Product Name</Label>
-                <Input id="product" placeholder="Enter product name" value={formData.product} onChange={handleChange} required />
+                <Label htmlFor="product_name">Product Name</Label>
+                <Input id="product_name" placeholder="Enter product name" value={formData.product_name} onChange={handleChange} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
@@ -122,29 +117,14 @@ export function WasteForm() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="quantity">Quantity</Label>
                 <Input id="quantity" type="number" min="0" step="0.01" placeholder="0.00" value={formData.quantity} onChange={handleChange} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="unit">Unit</Label>
-                <Select onValueChange={(value) => handleSelectChange("unit", value)} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select unit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                    <SelectItem value="g">Grams (g)</SelectItem>
-                    <SelectItem value="l">Liters (L)</SelectItem>
-                    <SelectItem value="ml">Milliliters (mL)</SelectItem>
-                    <SelectItem value="units">Units</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cost">Cost (USD)</Label>
-                <Input id="cost" type="number" min="0" step="0.01" placeholder="0.00" value={formData.cost} onChange={handleChange} required />
+                <Label htmlFor="total_cost">Total Cost (USD)</Label>
+                <Input id="total_cost" type="number" min="0" step="0.01" placeholder="0.00" value={formData.total_cost} onChange={handleChange} required />
               </div>
             </div>
             <div className="space-y-2">
@@ -161,26 +141,10 @@ export function WasteForm() {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="reason">Reason for Waste</Label>
-              <Select onValueChange={(value) => handleSelectChange("reason", value)} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select reason" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="expired">Expired</SelectItem>
-                  <SelectItem value="damaged">Damaged</SelectItem>
-                  <SelectItem value="spoiled">Spoiled</SelectItem>
-                  <SelectItem value="overproduction">Overproduction</SelectItem>
-                  <SelectItem value="quality">Quality Issues</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
-              Add Waste Entry
+              Add Inventory Entry
             </Button>
           </CardFooter>
         </form>

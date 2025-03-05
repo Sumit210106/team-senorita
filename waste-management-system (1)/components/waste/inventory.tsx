@@ -16,27 +16,27 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 
-export function WasteTable() {
-  const [wasteEntries, setWasteEntries] = useState([])
+export function InventoryTable() {
+  const [inventory, setInventory] = useState([])
   const [sorting, setSorting] = useState<"asc" | "desc">("desc")
 
   useEffect(() => {
     // Fetch initial data
-    const fetchWasteEntries = async () => {
-      const { data, error } = await supabase.from("waste_entries").select("*").order("date_added", { ascending: sorting === "asc" })
+    const fetchInventory = async () => {
+      const { data, error } = await supabase.from("inventory").select("*").order("date_added", { ascending: sorting === "asc" })
       if (error) {
-        console.error("Error fetching waste entries:", error)
+        console.error("Error fetching inventory:", error)
       } else {
-        setWasteEntries(data)
+        setInventory(data)
       }
     }
 
-    fetchWasteEntries()
+    fetchInventory()
 
     // Set up real-time subscription
     const subscription = supabase
-      .channel("waste_entries")
-      .on("postgres_changes", { event: "*", schema: "public", table: "waste_entries" }, fetchWasteEntries)
+      .channel("inventory")
+      .on("postgres_changes", { event: "*", schema: "public", table: "inventory" }, fetchInventory)
       .subscribe()
 
     return () => {
@@ -45,20 +45,20 @@ export function WasteTable() {
   }, [sorting])
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Recent Waste Entries</CardTitle>
-        <CardDescription>A list of all waste entries in the system. Click on an entry to edit or delete it.</CardDescription>
+        <CardTitle>Inventory</CardTitle>
+        <CardDescription>A list of all inventory items. Click on an entry to edit or delete it.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
+        <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[150px]">ID</TableHead>
-              <TableHead className="w-[200px]">Product</TableHead>
-              <TableHead className="w-[200px]">Category</TableHead>
-              <TableHead className="w-[150px]">Quantity</TableHead>
-              <TableHead className="w-[200px]">
+              <TableHead>ID</TableHead>
+              <TableHead>Product</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>
                 <div className="flex items-center">
                   Date Added
                   <Button
@@ -71,36 +71,22 @@ export function WasteTable() {
                   </Button>
                 </div>
               </TableHead>
-              <TableHead className="w-[200px]">Reason</TableHead>
-              <TableHead className="w-[150px]">Cost</TableHead>
-              <TableHead className="w-[150px] text-right">Actions</TableHead>
+              <TableHead>Expiration Date</TableHead>
+              <TableHead>Total Cost</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {wasteEntries.map((entry) => (
+            {inventory.map((entry) => (
               <TableRow key={entry.id}>
-                <TableCell className="font-medium w-[150px]">{entry.id}</TableCell>
-                <TableCell className="w-[200px]">{entry.product}</TableCell>
-                <TableCell className="w-[200px]">{entry.category}</TableCell>
-                <TableCell className="w-[150px]">{`${entry.quantity} ${entry.unit}`}</TableCell>
-                <TableCell className="w-[200px]">{entry.date_added}</TableCell>
-                <TableCell className="w-[200px]">
-                  <Badge
-                    variant={
-                      entry.reason === "Expired"
-                        ? "destructive"
-                        : entry.reason === "Damaged"
-                          ? "outline"
-                          : entry.reason === "Spoiled"
-                            ? "secondary"
-                            : "default"
-                    }
-                  >
-                    {entry.reason}
-                  </Badge>
-                </TableCell>
-                <TableCell className="w-[150px]">${entry.cost.toFixed(2)}</TableCell>
-                <TableCell className="w-[150px] text-right">
+                <TableCell className="font-medium">{entry.id}</TableCell>
+                <TableCell>{entry.product_name}</TableCell>
+                <TableCell>{entry.category}</TableCell>
+                <TableCell>{entry.quantity}</TableCell>
+                <TableCell>{entry.date_added}</TableCell>
+                <TableCell>{entry.expiry_date}</TableCell>
+                <TableCell>${entry.total_cost}</TableCell>
+                <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

@@ -40,6 +40,30 @@ export function AppSidebar() {
       href: "/analytics",
       icon: BarChart3,
     },
+    {
+      title: "Add Inventory",
+      href: "/add-inventory",
+      icon: BarChart3,
+    },
+    {
+      title: "Add Waste",
+      href: "/modify-inventory",
+      icon: BarChart3,
+    },
+
+    {
+      title: "Inventory",
+      href: "/inventory",
+      icon: BarChart3,
+    },
+    {
+      title: "Products Chart",
+      href: "/products",
+      icon: BarChart3,
+    },
+
+
+
   ]
 
   const utilityNavItems = [
