@@ -10,6 +10,7 @@ export function DashboardMetrics() {
   const [totalLiquidLiters, setTotalLiquidLiters] = useState<number | null>(null);
   const [totalElectronicsUnits, setTotalElectronicsUnits] = useState<number | null>(null);
   const [revenueLoss, setRevenueLoss] = useState<number | null>(null);
+  const [expiringSoon, setExpiringSoon] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export function DashboardMetrics() {
 
       setTotalWasteKg(Number(totalKg.toFixed(2)));
       setTotalLiquidLiters(Number(totalLiters.toFixed(2)));
-      setTotalElectronicsUnits(Number(totalUnits.toFixed(0)));
+      setTotalElectronicsUnits(Math.floor(totalUnits));
     }
 
     async function fetchRevenueLoss() {
@@ -56,9 +57,34 @@ export function DashboardMetrics() {
       setRevenueLoss(Number(total.toFixed(2)));
     }
 
+    async function fetchExpiringSoon() {
+      const { data, error } = await supabase
+        .from("inventory")
+        .select("expiry_date");
+
+      if (error) {
+        console.error("Error fetching expiring soon data:", error);
+        setLoading(false);
+        return;
+      }
+
+      const today = new Date();
+      const nextWeek = new Date();
+      nextWeek.setDate(today.getDate() + 7);
+
+      const expiringSoonCount = data ? data
+        .filter((item: any) => {
+          const expiryDate = new Date(item.expiry_date);
+          return expiryDate >= today && expiryDate <= nextWeek;
+        }).length : 0;
+
+      setExpiringSoon(expiringSoonCount);
+    }
+
     async function fetchData() {
       await fetchTotalWaste();
       await fetchRevenueLoss();
+      await fetchExpiringSoon();
       setLoading(false);
     }
 
@@ -77,16 +103,15 @@ export function DashboardMetrics() {
           <Trash2 className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-        <div className="text-xxl font-bold">
-  ⚖ {(totalWasteKg ?? 0).toFixed(2)} kg
-</div>
-<div className="text-xxl font-bold">
-  💧  {(totalLiquidLiters ?? 0).toFixed(2)} liters
-</div>
-<div className="text-xxl font-bold">
-  📦     {(totalElectronicsUnits ?? 0).toFixed()} pcs
-</div>
-
+          <div className="text-xxl font-bold">
+            ⚖ {(totalWasteKg ?? 0).toFixed(2)} kg
+          </div>
+          <div className="text-xxl font-bold">
+            💧 {(totalLiquidLiters ?? 0).toFixed(2)} liters
+          </div>
+          <div className="text-xxl font-bold">
+            📦 {(totalElectronicsUnits ?? 0).toFixed()} pcs
+          </div>
           <p className="text-xs text-muted-foreground flex items-center">
             <ArrowUp className="mr-1 h-3 w-3 text-destructive" />
             <span className="text-destructive">12%</span> from last month
@@ -112,7 +137,7 @@ export function DashboardMetrics() {
           <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">18 items</div>
+          <div className="text-2xl font-bold">{expiringSoon} items</div>
           <p className="text-xs text-muted-foreground">Within the next 7 days</p>
         </CardContent>
       </Card>

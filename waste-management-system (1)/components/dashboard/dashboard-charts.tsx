@@ -127,10 +127,7 @@ export function DashboardCharts() {
   }, []);
 
   if (loading) {
-    return <div>Loading... 
-      <br/> I am still learning to code. Please wait for a while.
-
-    </div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -150,7 +147,7 @@ export function DashboardCharts() {
               options={{
                 scales: { y: { beginAtZero: true } },
               }}
-              className="h-[300px] w-full"
+              className="h-[40px] w-full" // Adjusted height
             />
           ) : (
             <p>No bar data available</p>
@@ -177,7 +174,7 @@ export function DashboardCharts() {
                   },
                 },
               }}
-              className="h-[300px] w-full"
+              className="h-[250px] w-full"
             />
           ) : (
             <p>No doughnut data available</p>
