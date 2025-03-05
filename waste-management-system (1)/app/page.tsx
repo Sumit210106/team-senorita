@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts"
 import { DashboardMetrics } from "@/components/dashboard/dashboard-metrics"
-import { ExpiringProducts } from "@/components/dashboard/expiring-products"
+// import { ExpiringProducts } from "@/components/dashboard/expiring-products"
 
 export default function Home() {
   return (
@@ -11,7 +11,7 @@ export default function Home() {
         <DashboardMetrics />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <DashboardCharts />
-          <ExpiringProducts />
+          {/* <ExpiringProducts /> */}
         </div>
       </div>
     </div>

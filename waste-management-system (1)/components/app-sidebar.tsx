@@ -50,7 +50,6 @@ export function AppSidebar() {
       href: "/modify-inventory",
       icon: BarChart3,
     },
-
     {
       title: "Inventory",
       href: "/inventory",
@@ -61,9 +60,6 @@ export function AppSidebar() {
       href: "/products",
       icon: BarChart3,
     },
-
-
-
   ]
 
   const utilityNavItems = [
@@ -148,14 +144,8 @@ export function AppSidebar() {
               </>
             )}
           </Button>
-         {/* <Button variant="outline" size="sm" className="justify-start">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Logout</span>
-          </Button> */}
         </div>
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
-

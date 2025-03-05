@@ -14,15 +14,16 @@ import {
   ChartConfiguration,
   ChartTypeRegistry,
   BarController,
-  LineController, 
+  LineController,
   DoughnutController
 } from "chart.js";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Register Chart.js components including ArcElement for doughnut charts
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarController, 
+  BarController,
   BarElement,
   LineController,
   LineElement,
@@ -136,3 +137,48 @@ export const ChartYAxis = () => {
 export const ChartTooltip = () => {
   return <div>Tooltip</div>;
 };
+
+const expiringData = [
+  { day: "Today", count: 5 },
+  { day: "Tomorrow", count: 3 },
+  { day: "In 2 days", count: 4 },
+  { day: "In 3 days", count: 2 },
+  { day: "In 4 days", count: 1 },
+  { day: "In 5 days", count: 2 },
+  { day: "In 6 days", count: 1 },
+]
+
+export function ExpiringProducts() {
+  const chartData = {
+    labels: expiringData.map(d => d.day),
+    datasets: [
+      {
+        label: 'Expiring Products',
+        data: expiringData.map(d => d.count),
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Expiring Products</CardTitle>
+        <CardDescription>Products expiring in the next 7 days</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartBar data={chartData} options={chartOptions} className="h-[300px] w-full" />
+      </CardContent>
+    </Card>
+  )
+}
