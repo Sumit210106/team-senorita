@@ -1,77 +1,82 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Chart, ChartContainer, ChartBars, ChartBar, ChartXAxis, ChartYAxis, ChartTooltip } from "@/components/ui/chart"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useEffect, useState } from "react"
+import { Bar } from "react-chartjs-2"
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js"
+import { supabase } from "@/lib/supabase"
 
-// Sample data for waste analytics
-const wasteByReasonData = [
-  { reason: "Expired", amount: 120 },
-  { reason: "Damaged", amount: 45 },
-  { reason: "Spoiled", amount: 65 },
-  { reason: "Quality", amount: 30 },
-  { reason: "Overproduction", amount: 55 },
-  { reason: "Other", amount: 15 },
-]
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
-const wasteTrendData = [
-  { month: "Jan", amount: 85 },
-  { month: "Feb", amount: 75 },
-  { month: "Mar", amount: 90 },
-  { month: "Apr", amount: 65 },
-  { month: "May", amount: 70 },
-  { month: "Jun", amount: 60 },
-  { month: "Jul", amount: 75 },
-  { month: "Aug", amount: 85 },
-  { month: "Sep", amount: 90 },
-  { month: "Oct", amount: 80 },
-  { month: "Nov", amount: 75 },
-]
+export default function PredictedWasteChart() {
+  const [chartData, setChartData] = useState<{ labels: string[]; quantities: number[] }>({
+    labels: [],
+    quantities: [],
+  })
 
-export function WasteAnalytics() {
+  useEffect(() => {
+    const fetchAndPredictWaste = async () => {
+      const { data, error } = await supabase.from("ai_predictor").select("waste_type, quantity")
+      if (error) {
+        console.error("Error fetching waste data:", error)
+        return
+      }
+
+      // Aggregate waste quantity by category
+      const categoryMap: Record<string, number[]> = {}
+      data.forEach(({ waste_type, quantity }) => {
+        if (!categoryMap[waste_type]) categoryMap[waste_type] = []
+        categoryMap[waste_type].push(quantity)
+      })
+
+      // Compute Root Mean Square (RMS) for predictions
+      const predictWaste = (quantities: number[]) => {
+        if (quantities.length === 0) return 0
+        const sumOfSquares = quantities.reduce((sum, q) => sum + q ** 2, 0)
+        return Math.sqrt(sumOfSquares / quantities.length)
+      }
+
+      // Predict waste for next 10 days
+      const predictedCategories = Object.keys(categoryMap)
+      const predictedQuantities = predictedCategories.map((category) => predictWaste(categoryMap[category]) * 10)
+
+      setChartData({
+        labels: predictedCategories,
+        quantities: predictedQuantities,
+      })
+    }
+
+    fetchAndPredictWaste()
+  }, [])
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Waste Analytics</CardTitle>
-        <CardDescription>Analyze waste patterns and trends</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="byReason">
-          <TabsList className="mb-4">
-            <TabsTrigger value="byReason">By Reason</TabsTrigger>
-            <TabsTrigger value="trend">Monthly Trend</TabsTrigger>
-          </TabsList>
-          <TabsContent value="byReason">
-            <Chart className="h-[350px] w-full" data={wasteByReasonData}>
-              <ChartContainer>
-                <ChartYAxis />
-                <ChartBars>
-                  {wasteByReasonData.map((d, i) => (
-                    <ChartBar key={i} value={d.amount} name={d.reason} className="fill-primary" />
-                  ))}
-                </ChartBars>
-                <ChartXAxis />
-                <ChartTooltip />
-              </ChartContainer>
-            </Chart>
-          </TabsContent>
-          <TabsContent value="trend">
-            <Chart className="h-[350px] w-full" data={wasteTrendData}>
-              <ChartContainer>
-                <ChartYAxis />
-                <ChartBars>
-                  {wasteTrendData.map((d, i) => (
-                    <ChartBar key={i} value={d.amount} name={d.month} className="fill-primary" />
-                  ))}
-                </ChartBars>
-                <ChartXAxis />
-                <ChartTooltip />
-              </ChartContainer>
-            </Chart>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <div className="w-full p-6 bg-gray-900 shadow-md rounded-lg">
+      <h2 className="text-xl font-semibold mb-4 text-white">📊 Predicted Waste by Category (Next 10 Days)</h2>
+      <Bar
+        data={{
+          labels: chartData.labels,
+          datasets: [
+            {
+              label: "Predicted Waste (Quantity)",
+              data: chartData.quantities,
+              backgroundColor: "rgba(54, 162, 235, 0.6)", // Blue bars
+              borderColor: "rgba(255, 255, 255, 0.8)", // White borders
+              borderWidth: 1,
+            },
+          ],
+        }}
+        options={{
+          responsive: true,
+          plugins: {
+            legend: { display: true, labels: { color: "white" } },
+            title: { display: true, text: "Predicted Waste (in kg/liters/units) for Next 10 Days", color: "white" },
+          },
+          scales: {
+            x: { ticks: { color: "white" }, grid: { color: "rgba(255, 255, 255, 0.2)" } },
+            y: { beginAtZero: true, ticks: { color: "white" }, grid: { color: "rgba(255, 255, 255, 0.2)" } },
+          },
+        }}
+      />
+    </div>
   )
 }
-

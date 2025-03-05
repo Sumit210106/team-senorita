@@ -21,19 +21,18 @@ export function InventoryTable() {
   const [sorting, setSorting] = useState<"asc" | "desc">("desc")
 
   useEffect(() => {
-    // Fetch initial data
     const fetchInventory = async () => {
       const { data, error } = await supabase.from("inventory").select("*").order("date_added", { ascending: sorting === "asc" })
       if (error) {
         console.error("Error fetching inventory:", error)
       } else {
-        setInventory(data)
+        const updatedData = applyDiscounts(data)
+        setInventory(updatedData)
       }
     }
 
     fetchInventory()
 
-    // Set up real-time subscription
     const subscription = supabase
       .channel("inventory")
       .on("postgres_changes", { event: "*", schema: "public", table: "inventory" }, fetchInventory)
@@ -44,11 +43,47 @@ export function InventoryTable() {
     }
   }, [sorting])
 
+  const applyDiscounts = (items) => {
+    const today = new Date()
+
+    return items.map((item) => {
+      if (!item.expiry_date) return item
+
+      const expiryDate = new Date(item.expiry_date)
+      const daysToExpire = Math.floor((expiryDate - today) / (1000 * 60 * 60 * 24))
+
+      if (daysToExpire <= 6 && daysToExpire >= 0) {
+        let discountPercentage = 0
+
+        if (item.total_cost > 1000) discountPercentage = 50
+        else if (item.total_cost > 500) discountPercentage = 30
+        else if (item.total_cost > 100) discountPercentage = 20
+        else discountPercentage = 10
+
+        const discountedPrice = (item.total_cost * (1 - discountPercentage / 100)).toFixed(2)
+
+        updateDiscountInSupabase(item.id, discountPercentage, discountedPrice)
+
+        return { ...item, discountPercentage, discountedPrice }
+      }
+
+      return { ...item, discountPercentage: 0, discountedPrice: item.total_cost }
+    })
+  }
+
+  const updateDiscountInSupabase = async (id, discount, discountedPrice) => {
+    const { error } = await supabase.from("inventory").update({ discount, discounted_price: discountedPrice }).eq("id", id)
+
+    if (error) {
+      console.error("Error updating discount:", error)
+    }
+  }
+
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Inventory</CardTitle>
-        <CardDescription>A list of all inventory items. Click on an entry to edit or delete it.</CardDescription>
+        <CardDescription>Automated discounts applied for near-expiry products.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table className="w-full">
@@ -73,6 +108,8 @@ export function InventoryTable() {
               </TableHead>
               <TableHead>Expiration Date</TableHead>
               <TableHead>Total Cost</TableHead>
+              <TableHead>Discount</TableHead>
+              <TableHead>Discounted Price</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -86,6 +123,14 @@ export function InventoryTable() {
                 <TableCell>{entry.date_added}</TableCell>
                 <TableCell>{entry.expiry_date}</TableCell>
                 <TableCell>${entry.total_cost}</TableCell>
+                <TableCell>
+                  {entry.discountPercentage > 0 ? (
+                    <Badge className="bg-green-600">{entry.discountPercentage}% Off</Badge>
+                  ) : (
+                    <Badge className="bg-gray-500">No Discount</Badge>
+                  )}
+                </TableCell>
+                <TableCell className="font-bold text-green-400">${entry.discountedPrice}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

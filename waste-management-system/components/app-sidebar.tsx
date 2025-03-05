@@ -29,12 +29,12 @@ export function AppSidebar() {
     { title: "Dashboard", href: "/", icon: Home },
     { title: "Waste Management", href: "/waste", icon: Trash2 },
     { title: "Analytics", href: "/analytics", icon: BarChart3 },
-    { title: "Add Inventory", href: "/add-inventory", icon: BarChart3 },
+    // { title: "Add Inventory", href: "/add-inventory", icon: BarChart3 },
     { title: "Modify Inventory", href: "/modify-inventory", icon: BarChart3 },
     { title: "Inventory", href: "/inventory", icon: BarChart3 },
     { title: "Products Chart", href: "/products", icon: BarChart3 },
     { title: "Package Type", href: "/package_type", icon: BarChart3 },
-
+    { title: "Ai Alert ", href: "/ai-aler", icon: BarChart3 },
   ];
 
   const utilityNavItems = [
