@@ -27,9 +27,18 @@ export function DashboardCharts() {
         console.error("Error fetching waste entries data:", error);
       }
 
-      // Process data for Bar Chart
-      const barLabels = rawData ? rawData.map((item: any) => item.category) : [];
-      const barAmounts = rawData ? rawData.map((item: any) => Number(item.quantity)) : [];
+      // Process data for Bar Chart: Group by category and sum the quantities
+      const groupedByCategory = rawData ? rawData.reduce((acc: any, item: any) => {
+        const category = item.category;
+        if (!acc[category]) {
+          acc[category] = 0;
+        }
+        acc[category] += Number(item.quantity);
+        return acc;
+      }, {}) : {};
+
+      const barLabels = Object.keys(groupedByCategory);
+      const barAmounts = Object.values(groupedByCategory);
       const barChartData = {
         labels: barLabels,
         datasets: [
@@ -73,32 +82,44 @@ export function DashboardCharts() {
         ],
       };
 
-      // (Optional) Process data for Line Chart if needed...
-      // const { data: lineRaw, error: lineError } = await supabase
-      //   .from("waste_trend")
-      //   .select("month, quantity");
-      // if (lineError) {
-      //   console.error("Error fetching line chart data:", lineError);
-      // }
-      // const lineLabels = lineRaw ? lineRaw.map((item: any) => item.month) : [];
-      // const lineAmounts = lineRaw ? lineRaw.map((item: any) => Number(item.quantity)) : [];
-      // const lineChartData = {
-      //   labels: lineLabels,
-      //   datasets: [
-      //     {
-      //       label: "Waste Trend",
-      //       data: lineAmounts,
-      //       borderColor: "rgba(153, 102, 255, 1)",
-      //       borderWidth: 2,
-      //       fill: false,
-      //       tension: 0.4, // smooth curve
-      //     },
-      //   ],
-      // };
+      // Fetch data for Line Chart from the "waste_trend" table
+      const { data: lineRaw, error: lineError } = await supabase
+        .from("waste_entries")
+        .select("date_added, cost");
+      if (lineError) {
+        console.error("Error fetching line chart data:", lineError);
+      }
+
+      // Group data by date and sum the cost
+      const groupedByDate = lineRaw ? lineRaw.reduce((acc: any, item: any) => {
+        const date = item.date_added;
+        if (!acc[date]) {
+          acc[date] = 0;
+        }
+        acc[date] += Number(item.cost);
+        return acc;
+      }, {}) : {};
+
+      // Prepare data for Line Chart
+      const lineLabels = Object.keys(groupedByDate);
+      const lineAmounts = Object.values(groupedByDate);
+      const lineChartData = {
+        labels: lineLabels,
+        datasets: [
+          {
+            label: "Revenue Lost",
+            data: lineAmounts,
+            borderColor: "rgba(153, 102, 255, 1)",
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4, // smooth curve
+          },
+        ],
+      };
 
       setBarData(barChartData);
       setDoughnutData(doughnutChartData);
-      // setLineData(lineChartData);
+      setLineData(lineChartData);
       setLoading(false);
     }
 
@@ -106,7 +127,10 @@ export function DashboardCharts() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading... 
+      <br/> I am still learning to code. Please wait for a while.
+
+    </div>;
   }
 
   return (
@@ -116,7 +140,7 @@ export function DashboardCharts() {
         <CardHeader>
           <CardTitle>Waste by Category</CardTitle>
           <CardDescription>
-            Total waste in kilograms by product category
+            Total waste in units by product category
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -161,13 +185,13 @@ export function DashboardCharts() {
         </CardContent>
       </Card>
 
-      {/* Line Chart Card (Optional) */}
+      {/* Line Chart Card */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Waste Trend</CardTitle>
-          <CardDescription>Trend of waste over time</CardDescription>
+          <CardTitle>Revenue Lost</CardTitle>
+          <CardDescription>Revenue lost due to Wastage</CardDescription>
         </CardHeader>
-        {/* <CardContent>
+        <CardContent>
           {lineData ? (
             <ChartLine
               data={lineData}
@@ -183,7 +207,7 @@ export function DashboardCharts() {
           ) : (
             <p>No line data available</p>
           )}
-        </CardContent> */}
+        </CardContent>
       </Card>
     </>
   );
