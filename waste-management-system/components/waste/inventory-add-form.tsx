@@ -123,7 +123,7 @@ export function Addinventory() {
                 <Input id="quantity" type="number" min="0" step="0.01" placeholder="0.00" value={formData.quantity} onChange={handleChange} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="total_cost">Total Cost (USD)</Label>
+                <Label htmlFor="total_cost">Total Cost (INR)</Label>
                 <Input id="total_cost" type="number" min="0" step="0.01" placeholder="0.00" value={formData.total_cost} onChange={handleChange} required />
               </div>
             </div>

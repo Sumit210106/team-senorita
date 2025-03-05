@@ -99,7 +99,7 @@ export function WasteTable() {
                     {entry.reason}
                   </Badge>
                 </TableCell>
-                <TableCell className="w-[150px]">${entry.cost.toFixed(2)}</TableCell>
+                <TableCell className="w-[150px]">₹ {entry.cost.toFixed(2)}</TableCell>
                 <TableCell className="w-[150px] text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

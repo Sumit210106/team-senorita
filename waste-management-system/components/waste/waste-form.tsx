@@ -143,7 +143,7 @@ export function WasteForm() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cost">Cost (USD)</Label>
+                <Label htmlFor="cost">Cost (INR)</Label>
                 <Input id="cost" type="number" min="0" step="0.01" placeholder="0.00" value={formData.cost} onChange={handleChange} required />
               </div>
             </div>
