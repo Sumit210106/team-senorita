@@ -124,10 +124,10 @@ export function AppSidebar() {
               </>
             )}
           </Button>
-          <Button variant="outline" size="sm" className="justify-start">
+         {/* <Button variant="outline" size="sm" className="justify-start">
             <LogOut className="mr-2 h-4 w-4" />
             <span>Logout</span>
-          </Button>
+          </Button> */}
         </div>
       </SidebarFooter>
       <SidebarRail />
