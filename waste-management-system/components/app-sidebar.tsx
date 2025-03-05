@@ -33,6 +33,8 @@ export function AppSidebar() {
     { title: "Modify Inventory", href: "/modify-inventory", icon: BarChart3 },
     { title: "Inventory", href: "/inventory", icon: BarChart3 },
     { title: "Products Chart", href: "/products", icon: BarChart3 },
+    { title: "Package Type", href: "/package_type", icon: BarChart3 },
+
   ];
 
   const utilityNavItems = [
