@@ -50,13 +50,13 @@ export default function SalesPredictionChart() {
 
   return (
     <div className="w-full p-6 bg-gray-900 shadow-md rounded-lg">
-      <h2 className="text-xl font-semibold mb-4 text-white">📊 Actual vs Predicted Sales</h2>
+      <h2 className="text-xl font-semibold mb-4 text-white">Actual vs Predicted Waste</h2>
       <Line
         data={{
           labels: salesData.dates,
           datasets: [
             {
-              label: "Actual Sales (INR)",
+              label: "Actual Waste",
               data: salesData.actualSales,
               borderColor: "rgba(54, 162, 235, 1)", // Blue curve
               backgroundColor: "rgba(54, 162, 235, 0.4)", // Fill under the curve
@@ -65,7 +65,7 @@ export default function SalesPredictionChart() {
               fill: true,
             },
             {
-              label: "Predicted Sales (INR)",
+              label: "Predicted Waste ",
               data: salesData.predictedSales,
               borderColor: "rgba(255, 99, 132, 1)", // Red curve
               backgroundColor: "rgba(255, 99, 132, 0.4)", // Fill under the curve
@@ -80,7 +80,7 @@ export default function SalesPredictionChart() {
           responsive: true,
           plugins: {
             legend: { display: true, labels: { color: "white" } },
-            title: { display: true, text: "Sales Forecast (INR)", color: "white" },
+            title: { display: true, text: "Waste Forecast", color: "white" },
           },
           scales: {
             x: { ticks: { color: "white" }, grid: { color: "rgba(255, 255, 255, 0.2)" } },
