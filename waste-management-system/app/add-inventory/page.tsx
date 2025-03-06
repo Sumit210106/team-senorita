@@ -1,4 +1,4 @@
-import { InventoryTable } from "@/components/waste/inventory-add-form"
+import { Addinventory } from "@/components/waste/inventory-add-form"
 import { WasteForm } from "@/components/waste/waste-form"
 
 
@@ -8,7 +8,7 @@ export default function Modify_inventory() {
       <div className="w-full max-w-full"> {/* Adjust the max-width as needed */}
         {/* <WasteForm /> */}
         <br />
-        <InventoryTable />
+        <Addinventory />
       </div>
     </div>
   )

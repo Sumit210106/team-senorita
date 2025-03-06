@@ -34,14 +34,14 @@ export function AppSidebar() {
     { title: "Inventory", href: "/inventory", icon: BarChart3 },
     { title: "Products Chart", href: "/products", icon: BarChart3 },
     { title: "Package Type", href: "/package_type", icon: BarChart3 },
-    { title: "Ai Alert ", href: "/ai-aler", icon: BarChart3 },
+    // { title: "Ai Alert ", href: "/ai-aler", icon: BarChart3 },
   ];
 
-  const utilityNavItems = [
-    { title: "Reports", href: "/reports", icon: FileText },
-    { title: "Alerts", href: "/alerts", icon: AlertTriangle },
-    { title: "Settings", href: "/settings", icon: Settings },
-  ];
+  // const utilityNavItems = [
+  //   { title: "Reports", href: "/reports", icon: FileText },
+  //   { title: "Alerts", href: "/alerts", icon: AlertTriangle },
+  //   { title: "Settings", href: "/settings", icon: Settings },
+  // ];
 
   return (
     <Sidebar>
@@ -73,7 +73,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
+        {/* <SidebarGroup>
           <SidebarGroupLabel>Utilities</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -89,7 +89,7 @@ export function AppSidebar() {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup> */}
       </SidebarContent>
 
       {/* Sidebar Footer */}
